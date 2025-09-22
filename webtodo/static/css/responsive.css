@@ -1,0 +1,599 @@
+/* Responsive Design Breakpoints */
+/* Mobile: < 768px */
+/* Tablet: 768px - 1024px */
+/* Desktop: > 1024px */
+
+/* Base Mobile-First Approach */
+/* All styles in main.css and components.css are mobile-first */
+
+/* Tablet Styles (768px and up) */
+@media (min-width: 768px) {
+  .container {
+    padding: 0 var(--spacing-lg);
+  }
+
+  /* Header adjustments for tablet */
+  .header-content {
+    padding: var(--spacing-xl) 0;
+  }
+
+  /* Stats grid for tablet */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Form improvements for tablet */
+  .form-row {
+    flex-wrap: nowrap;
+  }
+
+  .form-actions {
+    justify-content: flex-start;
+  }
+
+  /* Filters section for tablet */
+  .filters-row {
+    flex-wrap: nowrap;
+    justify-content: space-between;
+  }
+
+  .search-box {
+    min-width: 300px;
+  }
+
+  /* Todo item layout for tablet */
+  .todo-item {
+    padding: var(--spacing-xl);
+  }
+
+  .todo-content {
+    padding-right: var(--spacing-md);
+  }
+
+  .todo-meta {
+    flex-wrap: nowrap;
+  }
+
+  /* Modal improvements for tablet */
+  .modal-content {
+    width: 80vw;
+    max-width: 600px;
+  }
+
+  .modal-sm .modal-content {
+    max-width: 450px;
+  }
+
+  /* Toast positioning for tablet */
+  .toast-container {
+    top: var(--spacing-xl);
+    right: var(--spacing-xl);
+  }
+
+  /* Footer layout for tablet */
+  .footer-content {
+    justify-content: space-between;
+  }
+}
+
+/* Desktop Styles (1024px and up) */
+@media (min-width: 1024px) {
+  .container {
+    padding: 0 var(--spacing-xl);
+  }
+
+  /* Header for desktop */
+  .header-content {
+    padding: var(--spacing-2xl) 0;
+  }
+
+  .logo {
+    font-size: var(--font-size-3xl);
+  }
+
+  /* Stats grid for desktop */
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  /* Enhanced form layout for desktop */
+  .form-container {
+    padding: var(--spacing-2xl);
+  }
+
+  .form-row {
+    align-items: flex-end;
+  }
+
+  /* Advanced filters layout for desktop */
+  .filters-container {
+    padding: var(--spacing-xl);
+  }
+
+  .filters-row {
+    gap: var(--spacing-2xl);
+  }
+
+  .search-box {
+    min-width: 350px;
+  }
+
+  /* Enhanced todo item for desktop */
+  .todo-item {
+    padding: var(--spacing-2xl);
+  }
+
+  .todo-item:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .todo-actions {
+    opacity: 0;
+    transition: opacity var(--transition-normal);
+  }
+
+  .todo-item:hover .todo-actions {
+    opacity: 1;
+  }
+
+  .todo-action-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  /* Enhanced modals for desktop */
+  .modal-content {
+    width: 70vw;
+    max-width: 700px;
+  }
+
+  .modal-body {
+    max-height: 70vh;
+  }
+
+  /* Toast improvements for desktop */
+  .toast-container {
+    max-width: 450px;
+  }
+
+  .toast {
+    padding: var(--spacing-lg);
+  }
+
+  /* Hover effects for desktop */
+  .stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    box-shadow: var(--shadow-lg);
+  }
+}
+
+/* Large Desktop Styles (1440px and up) */
+@media (min-width: 1440px) {
+  .container {
+    max-width: 1400px;
+  }
+
+  /* Even more spacing for large screens */
+  .main {
+    padding: var(--spacing-3xl) 0;
+  }
+
+  .section-title {
+    font-size: var(--font-size-2xl);
+  }
+
+  /* Larger form containers */
+  .form-container,
+  .filters-container,
+  .todos-container {
+    padding: var(--spacing-3xl);
+  }
+
+  /* Enhanced todo layout for large screens */
+  .todo-item {
+    padding: var(--spacing-3xl);
+  }
+
+  .todo-title {
+    font-size: var(--font-size-lg);
+  }
+
+  /* Larger modals for big screens */
+  .modal-content {
+    max-width: 800px;
+  }
+}
+
+/* Mobile Specific Optimizations */
+@media (max-width: 767px) {
+  /* Compact header for mobile */
+  .header-content {
+    padding: var(--spacing-md) 0;
+  }
+
+  .logo {
+    font-size: var(--font-size-xl);
+  }
+
+  .subtitle {
+    display: none;
+  }
+
+  /* Single column stats for mobile */
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+
+  .stat-card {
+    padding: var(--spacing-md);
+  }
+
+  /* Compact form for mobile */
+  .form-container {
+    padding: var(--spacing-md);
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Stacked filters for mobile */
+  .filters-container {
+    padding: var(--spacing-md);
+  }
+
+  .filters-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-md);
+  }
+
+  .filter-group {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-sm);
+  }
+
+  .filter-buttons {
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    flex: 1;
+    min-width: auto;
+    justify-content: center;
+  }
+
+  .search-box {
+    min-width: auto;
+    width: 100%;
+  }
+
+  .search-input {
+    min-width: auto;
+    width: 100%;
+  }
+
+  /* Compact todo items for mobile */
+  .todo-item {
+    padding: var(--spacing-md);
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-sm);
+  }
+
+  .todo-checkbox {
+    margin-right: 0;
+    align-self: flex-start;
+  }
+
+  .todo-content {
+    order: 2;
+  }
+
+  .todo-actions {
+    order: 3;
+    margin-left: 0;
+    justify-content: flex-end;
+    align-self: stretch;
+  }
+
+  .todo-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-xs);
+  }
+
+  /* Compact todos header for mobile */
+  .todos-header {
+    padding: var(--spacing-md);
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-sm);
+  }
+
+  .todos-actions {
+    justify-content: stretch;
+  }
+
+  .todos-actions .btn {
+    flex: 1;
+  }
+
+  /* Full screen modals for mobile */
+  .modal-content {
+    width: 100vw;
+    height: 100vh;
+    max-width: none;
+    max-height: none;
+    border-radius: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+  }
+
+  .modal-body {
+    max-height: calc(100vh - 120px);
+  }
+
+  .modal-footer {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+
+  .modal-footer .btn {
+    width: 100%;
+  }
+
+  /* Compact toast for mobile */
+  .toast-container {
+    top: var(--spacing-md);
+    right: var(--spacing-md);
+    left: var(--spacing-md);
+    max-width: none;
+  }
+
+  .toast {
+    padding: var(--spacing-sm);
+  }
+
+  /* Compact footer for mobile */
+  .footer-content {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    text-align: center;
+  }
+
+  .footer-links {
+    justify-content: center;
+  }
+}
+
+/* Small Mobile Optimizations (320px - 480px) */
+@media (max-width: 480px) {
+  .container {
+    padding: 0 var(--spacing-sm);
+  }
+
+  /* Even more compact elements */
+  .form-container,
+  .filters-container {
+    padding: var(--spacing-sm);
+  }
+
+  .todo-item {
+    padding: var(--spacing-sm);
+  }
+
+  .todos-header {
+    padding: var(--spacing-sm);
+  }
+
+  /* Smaller text for very small screens */
+  .todo-title {
+    font-size: var(--font-size-sm);
+  }
+
+  .todo-description {
+    font-size: var(--font-size-xs);
+  }
+
+  .section-title {
+    font-size: var(--font-size-lg);
+  }
+
+  /* Compact buttons for small screens */
+  .btn {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    min-height: 2rem;
+    font-size: var(--font-size-xs);
+  }
+
+  .btn-icon {
+    min-width: 2rem;
+    min-height: 2rem;
+  }
+
+  /* Smaller form elements */
+  .form-input,
+  .form-select,
+  .form-textarea {
+    font-size: var(--font-size-sm);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    min-height: 2rem;
+  }
+}
+
+/* Landscape Mobile Optimizations */
+@media (max-width: 767px) and (orientation: landscape) {
+  .main {
+    padding: var(--spacing-md) 0;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .modal-content {
+    height: 95vh;
+    margin: 2.5vh auto;
+    border-radius: var(--radius-lg);
+  }
+
+  .modal-body {
+    max-height: calc(95vh - 120px);
+  }
+}
+
+/* Tablet Landscape Specific */
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .form-row {
+    flex-wrap: nowrap;
+  }
+
+  .filters-row {
+    flex-wrap: nowrap;
+  }
+}
+
+/* Print Styles */
+@media print {
+  .header,
+  .footer,
+  .form-section,
+  .filters-section,
+  .todo-actions,
+  .todos-actions,
+  .btn,
+  .modal {
+    display: none !important;
+  }
+
+  .main {
+    padding: 0;
+  }
+
+  .container {
+    max-width: none;
+    padding: 0;
+  }
+
+  .todo-item {
+    break-inside: avoid;
+    border: 1px solid #ccc;
+    margin-bottom: var(--spacing-sm);
+    border-radius: var(--radius-sm);
+  }
+
+  .todo-item.completed {
+    opacity: 0.6;
+  }
+
+  .stats-section {
+    break-after: page;
+  }
+}
+
+/* Reduced Motion Preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .loading::after {
+    animation: none;
+  }
+
+  .skeleton-line::after {
+    animation: none;
+  }
+
+  .toast {
+    animation: none;
+  }
+
+  .modal.active .modal-content {
+    animation: none;
+  }
+}
+
+/* Dark Mode Responsive Adjustments */
+@media (prefers-color-scheme: dark) {
+  .theme-light {
+    --color-text-primary: #f9fafb;
+    --color-text-secondary: #d1d5db;
+    --color-text-muted: #9ca3af;
+    
+    --color-bg-primary: #111827;
+    --color-bg-secondary: #1f2937;
+    --color-bg-tertiary: #374151;
+    --color-bg-hover: #4b5563;
+    
+    --color-border-light: #374151;
+    --color-border-medium: #4b5563;
+    --color-border-dark: #6b7280;
+  }
+}
+
+/* Force Light Theme */
+.theme-light {
+  --color-text-primary: #1f2937;
+  --color-text-secondary: #6b7280;
+  --color-text-muted: #9ca3af;
+  
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f9fafb;
+  --color-bg-tertiary: #f3f4f6;
+  --color-bg-hover: #f5f5f5;
+  
+  --color-border-light: #e5e7eb;
+  --color-border-medium: #d1d5db;
+  --color-border-dark: #9ca3af;
+}
+
+/* High DPI Display Optimizations */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .todo-item {
+    border-width: 0.5px;
+  }
+
+  .modal-content {
+    border-width: 0.5px;
+  }
+
+  .form-input,
+  .form-select,
+  .form-textarea {
+    border-width: 0.5px;
+  }
+}

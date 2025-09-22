@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  # Godis Redis Server with Web Todo Feature
+  godis-webtodo:
+    build:
+      context: .
+      dockerfile: Dockerfile.webtodo
+    container_name: godis-webtodo
+    restart: unless-stopped
+    ports:
+      - "6399:6399"  # Redis port
+      - "8080:8080"  # Web Todo port
+    volumes:
+      - godis-data:/app/data
+      - godis-logs:/app/logs
+      - ./webtodo.conf:/app/webtodo.conf:ro
+    environment:
+      - ENABLE_WEB_TODO=true
+      - WEB_TODO_PORT=8080
+      - WEB_TODO_STATIC_DIR=/app/webtodo/static
+    networks:
+      - godis-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Optional: Nginx reverse proxy for production
+  nginx:
+    image: nginx:alpine
+    container_name: godis-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - godis-webtodo
+    networks:
+      - godis-network
+    profiles:
+      - production
+
+  # Optional: Redis monitoring with RedisInsight
+  redis-insight:
+    image: redislabs/redisinsight:latest
+    container_name: redis-insight
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    volumes:
+      - redis-insight-data:/db
+    networks:
+      - godis-network
+    profiles:
+      - monitoring
+
+volumes:
+  godis-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./data
+  godis-logs:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./logs
+  redis-insight-data:
+    driver: local
+
+networks:
+  godis-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
