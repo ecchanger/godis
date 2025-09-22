@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Godis Todo - Test Suite</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-result {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 4px;
+            border-left: 4px solid;
+        }
+        .test-pass {
+            background-color: #d4edda;
+            border-color: #28a745;
+            color: #155724;
+        }
+        .test-fail {
+            background-color: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+        }
+        .test-info {
+            background-color: #d1ecf1;
+            border-color: #17a2b8;
+            color: #0c5460;
+        }
+        .test-summary {
+            padding: 15px;
+            margin: 20px 0;
+            background-color: #e9ecef;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        #testResults {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Godis Todo - Frontend Test Suite</h1>
+        <p>This page tests the frontend functionality of the Godis Todo application.</p>
+        
+        <div class="test-controls">
+            <button id="runAllTests">Run All Tests</button>
+            <button id="runApiTests">Run API Tests</button>
+            <button id="runUtilTests">Run Utility Tests</button>
+            <button id="clearResults">Clear Results</button>
+        </div>
+        
+        <div class="test-summary" id="testSummary" style="display: none;">
+            <strong>Test Summary:</strong>
+            <span id="summaryText"></span>
+        </div>
+        
+        <div id="testResults"></div>
+        
+        <div class="test-info">
+            <h3>Test Requirements:</h3>
+            <ul>
+                <li>Godis server running on localhost:6399</li>
+                <li>Web Todo server running on localhost:8080</li>
+                <li>Internet connection for external resources</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // Test framework
+        class TestRunner {
+            constructor() {
+                this.tests = [];
+                this.results = [];
+                this.resultsContainer = document.getElementById('testResults');
+                this.summaryContainer = document.getElementById('testSummary');
+                this.summaryText = document.getElementById('summaryText');
+            }
+
+            addTest(name, testFn, category = 'general') {
+                this.tests.push({ name, testFn, category });
+            }
+
+            async runTests(category = null) {
+                this.results = [];
+                this.clearResults();
+                
+                const testsToRun = category 
+                    ? this.tests.filter(t => t.category === category)
+                    : this.tests;
+                
+                this.logInfo(`Running ${testsToRun.length} tests...`);
+                
+                for (const test of testsToRun) {
+                    try {
+                        this.logInfo(`Running: ${test.name}`);
+                        const startTime = Date.now();
+                        await test.testFn();
+                        const duration = Date.now() - startTime;
+                        this.logPass(`✓ ${test.name} (${duration}ms)`);
+                        this.results.push({ name: test.name, status: 'pass', duration });
+                    } catch (error) {
+                        this.logFail(`✗ ${test.name}: ${error.message}`);
+                        this.results.push({ name: test.name, status: 'fail', error: error.message });
+                    }
+                }
+                
+                this.showSummary();
+            }
+
+            logPass(message) {
+                this.log(message, 'test-pass');
+            }
+
+            logFail(message) {
+                this.log(message, 'test-fail');
+            }
+
+            logInfo(message) {
+                this.log(message, 'test-info');
+            }
+
+            log(message, className) {
+                const div = document.createElement('div');
+                div.className = `test-result ${className}`;
+                div.textContent = message;
+                this.resultsContainer.appendChild(div);
+                this.resultsContainer.scrollTop = this.resultsContainer.scrollHeight;
+            }
+
+            clearResults() {
+                this.resultsContainer.innerHTML = '';
+                this.summaryContainer.style.display = 'none';
+            }
+
+            showSummary() {
+                const passed = this.results.filter(r => r.status === 'pass').length;
+                const failed = this.results.filter(r => r.status === 'fail').length;
+                const total = this.results.length;
+                
+                this.summaryText.textContent = `${passed}/${total} tests passed, ${failed} failed`;
+                this.summaryContainer.style.display = 'block';
+            }
+
+            // Assertion helpers
+            assertEqual(actual, expected, message = '') {
+                if (actual !== expected) {
+                    throw new Error(`${message} Expected: ${expected}, Actual: ${actual}`);
+                }
+            }
+
+            assertTrue(condition, message = '') {
+                if (!condition) {
+                    throw new Error(`${message} Expected true, got false`);
+                }
+            }
+
+            assertFalse(condition, message = '') {
+                if (condition) {
+                    throw new Error(`${message} Expected false, got true`);
+                }
+            }
+
+            assertThrows(fn, message = '') {
+                try {
+                    fn();
+                    throw new Error(`${message} Expected function to throw`);
+                } catch (error) {
+                    // Expected
+                }
+            }
+        }
+
+        // Initialize test runner
+        const testRunner = new TestRunner();
+
+        // API Tests
+        testRunner.addTest('API Client exists', () => {
+            testRunner.assertTrue(typeof window.api !== 'undefined', 'API client should exist');
+        }, 'api');
+
+        testRunner.addTest('API Client has methods', () => {
+            testRunner.assertTrue(typeof window.api.getTodos === 'function', 'getTodos method should exist');
+            testRunner.assertTrue(typeof window.api.createTodo === 'function', 'createTodo method should exist');
+            testRunner.assertTrue(typeof window.api.updateTodo === 'function', 'updateTodo method should exist');
+            testRunner.assertTrue(typeof window.api.deleteTodo === 'function', 'deleteTodo method should exist');
+        }, 'api');
+
+        testRunner.addTest('API GET request', async () => {
+            try {
+                const response = await window.api.getTodos({ limit: 1 });
+                testRunner.assertTrue(response !== null, 'Response should not be null');
+                testRunner.assertTrue(typeof response === 'object', 'Response should be an object');
+            } catch (error) {
+                if (error.message.includes('Network error')) {
+                    throw new Error('Cannot connect to server - ensure Godis Todo server is running');
+                }
+                throw error;
+            }
+        }, 'api');
+
+        // Utility Tests
+        testRunner.addTest('Utils object exists', () => {
+            testRunner.assertTrue(typeof window.utils !== 'undefined', 'Utils object should exist');
+        }, 'utils');
+
+        testRunner.addTest('Date formatting', () => {
+            const now = new Date();
+            const formatted = window.utils.formatDate(now.toISOString());
+            testRunner.assertTrue(formatted === 'Just now', 'Recent date should format as "Just now"');
+        }, 'utils');
+
+        testRunner.addTest('Local storage utils', () => {
+            window.utils.storage.set('test', 'value');
+            const value = window.utils.storage.get('test');
+            testRunner.assertEqual(value, 'value', 'Storage should save and retrieve values');
+            window.utils.storage.remove('test');
+        }, 'utils');
+
+        testRunner.addTest('Theme management', () => {
+            const initialTheme = window.utils.theme.get();
+            window.utils.theme.toggle();
+            const newTheme = window.utils.theme.get();
+            testRunner.assertTrue(initialTheme !== newTheme, 'Theme should toggle');
+            window.utils.theme.set(initialTheme); // Restore
+        }, 'utils');
+
+        testRunner.addTest('Form validation', () => {
+            const result = window.utils.validation.required('test');
+            testRunner.assertTrue(result.isValid, 'Non-empty string should be valid');
+            
+            const emptyResult = window.utils.validation.required('');
+            testRunner.assertFalse(emptyResult.isValid, 'Empty string should be invalid');
+        }, 'utils');
+
+        testRunner.addTest('HTML escaping', () => {
+            const escaped = window.utils.escapeHtml('<script>alert("xss")</script>');
+            testRunner.assertTrue(!escaped.includes('<script>'), 'HTML should be escaped');
+        }, 'utils');
+
+        // Component Tests
+        testRunner.addTest('Components object exists', () => {
+            testRunner.assertTrue(typeof window.components !== 'undefined', 'Components object should exist');
+        }, 'components');
+
+        testRunner.addTest('Toast manager', () => {
+            testRunner.assertTrue(typeof window.showToast === 'function', 'showToast function should exist');
+            
+            // Test toast creation (won't show in test environment)
+            const toastId = window.showToast('info', 'Test', 'Test message', 1000);
+            testRunner.assertTrue(typeof toastId === 'string', 'Toast should return an ID');
+        }, 'components');
+
+        testRunner.addTest('Modal manager', () => {
+            testRunner.assertTrue(typeof window.components.modalManager !== 'undefined', 'Modal manager should exist');
+            testRunner.assertTrue(typeof window.components.modalManager.open === 'function', 'Modal manager should have open method');
+        }, 'components');
+
+        // DOM Tests
+        testRunner.addTest('Required elements exist', () => {
+            const requiredElements = [
+                '#todoForm',
+                '#todoList',
+                '#loadingState',
+                '#emptyState',
+                '#themeToggle',
+                '#refreshBtn'
+            ];
+            
+            requiredElements.forEach(selector => {
+                const element = document.querySelector(selector);
+                testRunner.assertTrue(element !== null, `Element ${selector} should exist`);
+            });
+        }, 'dom');
+
+        testRunner.addTest('CSS variables loaded', () => {
+            const style = getComputedStyle(document.documentElement);
+            const primaryColor = style.getPropertyValue('--color-primary');
+            testRunner.assertTrue(primaryColor !== '', 'CSS variables should be loaded');
+        }, 'dom');
+
+        // Performance Tests
+        testRunner.addTest('Utils performance', () => {
+            const start = performance.now();
+            for (let i = 0; i < 1000; i++) {
+                window.utils.formatDate(new Date().toISOString());
+            }
+            const end = performance.now();
+            const duration = end - start;
+            testRunner.assertTrue(duration < 100, `Date formatting should be fast (${duration}ms)`);
+        }, 'performance');
+
+        // Event Listeners
+        document.getElementById('runAllTests').addEventListener('click', () => {
+            document.getElementById('runAllTests').disabled = true;
+            testRunner.runTests().finally(() => {
+                document.getElementById('runAllTests').disabled = false;
+            });
+        });
+
+        document.getElementById('runApiTests').addEventListener('click', () => {
+            testRunner.runTests('api');
+        });
+
+        document.getElementById('runUtilTests').addEventListener('click', () => {
+            testRunner.runTests('utils');
+        });
+
+        document.getElementById('clearResults').addEventListener('click', () => {
+            testRunner.clearResults();
+        });
+
+        // Auto-run basic tests when page loads
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                testRunner.runTests('utils');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
