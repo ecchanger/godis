@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>现代化 TodoList</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <h1 class="app-title">
+                    <i class="fas fa-tasks"></i>
+                    TodoList
+                </h1>
+                <div class="header-controls">
+                    <button class="theme-toggle" id="themeToggle" title="切换主题">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="main">
+            <div class="todo-form-container">
+                <form class="todo-form" id="todoForm">
+                    <div class="input-group">
+                        <input 
+                            type="text" 
+                            id="todoTitle" 
+                            placeholder="添加新任务..." 
+                            class="todo-input"
+                            maxlength="100"
+                            required
+                        >
+                        <textarea 
+                            id="todoDescription" 
+                            placeholder="描述 (可选)" 
+                            class="todo-textarea"
+                            maxlength="500"
+                            rows="2"
+                        ></textarea>
+                    </div>
+                    <button type="submit" class="add-btn">
+                        <i class="fas fa-plus"></i>
+                        添加任务
+                    </button>
+                </form>
+            </div>
+
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">
+                    <i class="fas fa-list"></i>
+                    全部 (<span id="allCount">0</span>)
+                </button>
+                <button class="filter-btn" data-filter="active">
+                    <i class="fas fa-clock"></i>
+                    进行中 (<span id="activeCount">0</span>)
+                </button>
+                <button class="filter-btn" data-filter="completed">
+                    <i class="fas fa-check"></i>
+                    已完成 (<span id="completedCount">0</span>)
+                </button>
+            </div>
+
+            <div class="todo-list-container">
+                <div class="todo-stats">
+                    <span class="stats-text">总共 <span id="totalTodos">0</span> 个任务</span>
+                    <button class="clear-completed" id="clearCompleted" style="display: none;">
+                        <i class="fas fa-trash"></i>
+                        清除已完成
+                    </button>
+                </div>
+                <ul class="todo-list" id="todoList">
+                    <!-- 动态生成的待办事项将在这里显示 -->
+                </ul>
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-icon">
+                        <i class="fas fa-inbox"></i>
+                    </div>
+                    <h3>暂无任务</h3>
+                    <p>添加您的第一个任务开始使用吧！</p>
+                </div>
+            </div>
+        </main>
+
+        <!-- 编辑模态框 -->
+        <div class="modal" id="editModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>编辑任务</h3>
+                    <button class="modal-close" id="closeModal">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <form id="editForm">
+                    <div class="form-group">
+                        <label for="editTitle">任务标题</label>
+                        <input type="text" id="editTitle" class="form-input" required maxlength="100">
+                    </div>
+                    <div class="form-group">
+                        <label for="editDescription">任务描述</label>
+                        <textarea id="editDescription" class="form-textarea" rows="3" maxlength="500"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="cancelEdit">取消</button>
+                        <button type="submit" class="btn btn-primary">保存</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- 加载指示器 -->
+        <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+            <div class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i>
+            </div>
+        </div>
+
+        <!-- 消息提示 -->
+        <div class="toast-container" id="toastContainer"></div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
