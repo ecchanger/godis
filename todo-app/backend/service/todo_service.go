@@ -32,6 +32,7 @@ func (s *TodoService) CreateTodo(req *models.CreateTodoRequest) (*models.Todo, e
 		Title:       strings.TrimSpace(req.Title),
 		Description: strings.TrimSpace(req.Description),
 		Priority:    req.Priority,
+		Tags:        s.normalizeTags(req.Tags),
 		DueDate:     req.DueDate,
 		Completed:   false, // New todos are always incomplete
 	}
@@ -90,6 +91,12 @@ func (s *TodoService) UpdateTodo(id string, req *models.UpdateTodoRequest) (*mod
 	// Validate update request
 	if err := s.validateUpdateRequest(req); err != nil {
 		return nil, err
+	}
+
+	// Normalize tags if provided
+	if req.Tags != nil {
+		normalizedTags := s.normalizeTags(*req.Tags)
+		req.Tags = &normalizedTags
 	}
 
 	// Update todo in repository
@@ -161,6 +168,10 @@ func (s *TodoService) validateCreateRequest(req *models.CreateTodoRequest) error
 		return fmt.Errorf("invalid priority: %s", req.Priority)
 	}
 
+	if err := s.validateTags(req.Tags); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -193,6 +204,12 @@ func (s *TodoService) validateUpdateRequest(req *models.UpdateTodoRequest) error
 		return fmt.Errorf("invalid priority: %s", *req.Priority)
 	}
 
+	if req.Tags != nil {
+		if err := s.validateTags(*req.Tags); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -219,4 +236,51 @@ func (s *TodoService) validateFilter(filter *models.TodoFilter) error {
 	}
 
 	return nil
+}
+
+// validateTags validates a slice of tags
+func (s *TodoService) validateTags(tags []string) error {
+	if len(tags) > 20 {
+		return fmt.Errorf("cannot have more than 20 tags")
+	}
+
+	for _, tag := range tags {
+		tag = strings.TrimSpace(tag)
+		if tag == "" {
+			return fmt.Errorf("tags cannot be empty")
+		}
+		if len(tag) > 50 {
+			return fmt.Errorf("tag cannot exceed 50 characters: %s", tag)
+		}
+		// Only allow alphanumeric characters, hyphens, underscores, and Chinese characters
+		for _, r := range tag {
+			if !((r >= 'a' && r <= 'z') || (r >= 'A' && r <= 'Z') || 
+				 (r >= '0' && r <= '9') || r == '-' || r == '_' || 
+				 (r >= 0x4e00 && r <= 0x9fff)) {
+				return fmt.Errorf("tag contains invalid characters: %s", tag)
+			}
+		}
+	}
+
+	return nil
+}
+
+// normalizeTags normalizes tags by trimming spaces and removing duplicates
+func (s *TodoService) normalizeTags(tags []string) []string {
+	if len(tags) == 0 {
+		return []string{}
+	}
+
+	seen := make(map[string]bool)
+	result := make([]string, 0, len(tags))
+
+	for _, tag := range tags {
+		tag = strings.TrimSpace(tag)
+		if tag != "" && !seen[tag] {
+			seen[tag] = true
+			result = append(result, tag)
+		}
+	}
+
+	return result
 }

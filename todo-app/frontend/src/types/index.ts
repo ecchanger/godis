@@ -7,6 +7,7 @@ export interface Todo {
   description: string;
   completed: boolean;
   priority: Priority;
+  tags?: string[];
   dueDate?: string;
   createdAt: string;
   updatedAt: string;
@@ -17,6 +18,7 @@ export interface CreateTodoRequest {
   title: string;
   description?: string;
   priority?: Priority;
+  tags?: string[];
   dueDate?: string;
 }
 
@@ -25,6 +27,7 @@ export interface UpdateTodoRequest {
   description?: string;
   completed?: boolean;
   priority?: Priority;
+  tags?: string[];
   dueDate?: string;
 }
 
@@ -53,6 +56,7 @@ export interface TodoStatsResponse {
 export interface TodoFilter {
   completed?: boolean;
   priority?: Priority;
+  tag?: string;
   sortBy?: 'createdAt' | 'title' | 'priority' | 'dueDate';
   order?: 'asc' | 'desc';
 }

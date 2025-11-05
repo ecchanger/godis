@@ -6,7 +6,8 @@ import {
   Calendar, 
   AlertCircle,
   Clock,
-  User
+  User,
+  Tag
 } from 'lucide-react';
 import { useTodoActions } from '../store/todoStore';
 
@@ -128,6 +129,25 @@ const TodoItem = ({ todo, onEdit }) => {
             >
               {todo.description}
             </p>
+          )}
+
+          {/* Tags */}
+          {todo.tags && todo.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-3">
+              {todo.tags.map((tag, index) => (
+                <span
+                  key={index}
+                  className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                    todo.completed 
+                      ? 'bg-gray-200 text-gray-600' 
+                      : 'bg-blue-100 text-blue-800'
+                  }`}
+                >
+                  <Tag size={10} />
+                  {tag}
+                </span>
+              ))}
+            </div>
           )}
 
           {/* Meta information */}

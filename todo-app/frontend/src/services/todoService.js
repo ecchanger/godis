@@ -48,6 +48,9 @@ export class TodoService {
       if (filter.priority) {
         params.append('priority', filter.priority);
       }
+      if (filter.tag) {
+        params.append('tag', filter.tag);
+      }
       if (filter.sortBy) {
         params.append('sortBy', filter.sortBy);
       }

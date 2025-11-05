@@ -45,6 +45,7 @@ const (
 	TodosCompletedSet  = "todos:completed"
 	TodosPendingSet    = "todos:pending"
 	TodosPriorityPrefix = "todos:priority:"
+	TodosTagPrefix     = "todos:tag:"
 	TodoCounterKey     = "todo:counter"
 )
 
@@ -97,6 +98,15 @@ func (r *TodoRepository) Create(todo *models.Todo) error {
 		return fmt.Errorf("failed to add to priority set: %w", err)
 	}
 
+	// Add to tag sets
+	for _, tag := range todo.Tags {
+		tagKey := TodosTagPrefix + tag
+		err = r.client.SAdd(tagKey, todo.ID)
+		if err != nil {
+			return fmt.Errorf("failed to add to tag set: %w", err)
+		}
+	}
+
 	return nil
 }
 
@@ -135,18 +145,28 @@ func (r *TodoRepository) GetByID(id string) (*models.Todo, error) {
 
 // GetAll retrieves all todos with optional filtering
 func (r *TodoRepository) GetAll(filter *models.TodoFilter) ([]*models.Todo, error) {
-	var todoIDs []string
+	// Get todo IDs based on filter
+	var candidateIDs []string
 	var err error
 
-	// Get todo IDs based on filter
-	if filter != nil && filter.Completed != nil {
-		if *filter.Completed {
-			todoIDs, err = r.client.SMembers(TodosCompletedSet)
-		} else {
-			todoIDs, err = r.client.SMembers(TodosPendingSet)
+	// Start with tag filter if specified (most restrictive)
+	if filter != nil && filter.Tag != nil && *filter.Tag != "" {
+		tagKey := TodosTagPrefix + *filter.Tag
+		candidateIDs, err = r.client.SMembers(tagKey)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get todos by tag: %w", err)
 		}
 	} else {
-		todoIDs, err = r.client.SMembers(TodosAllSet)
+		// Otherwise get from completion status filter or all todos
+		if filter != nil && filter.Completed != nil {
+			if *filter.Completed {
+				candidateIDs, err = r.client.SMembers(TodosCompletedSet)
+			} else {
+				candidateIDs, err = r.client.SMembers(TodosPendingSet)
+			}
+		} else {
+			candidateIDs, err = r.client.SMembers(TodosAllSet)
+		}
 	}
 
 	if err != nil {
@@ -154,12 +174,19 @@ func (r *TodoRepository) GetAll(filter *models.TodoFilter) ([]*models.Todo, erro
 	}
 
 	// Retrieve all todos
-	todos := make([]*models.Todo, 0, len(todoIDs))
-	for _, id := range todoIDs {
+	todos := make([]*models.Todo, 0, len(candidateIDs))
+	for _, id := range candidateIDs {
 		todo, err := r.GetByID(id)
 		if err != nil {
 			// Skip invalid todos but log the error
 			continue
+		}
+
+		// Apply completion filter if tag filter was used
+		if filter != nil && filter.Tag != nil && filter.Completed != nil {
+			if todo.Completed != *filter.Completed {
+				continue
+			}
 		}
 
 		// Apply priority filter if specified
@@ -188,6 +215,12 @@ func (r *TodoRepository) Update(id string, updates *models.UpdateTodoRequest) (*
 
 	// Track if completion status changed
 	oldCompleted := existingTodo.Completed
+	
+	// Track old tags for index update
+	oldTags := make(map[string]bool)
+	for _, tag := range existingTodo.Tags {
+		oldTags[tag] = true
+	}
 
 	// Apply updates
 	if updates.Title != nil {
@@ -212,6 +245,21 @@ func (r *TodoRepository) Update(id string, updates *models.UpdateTodoRequest) (*
 	}
 	if updates.DueDate != nil {
 		existingTodo.DueDate = updates.DueDate
+	}
+	if updates.Tags != nil {
+		// Remove from old tag sets
+		for tag := range oldTags {
+			tagKey := TodosTagPrefix + tag
+			r.client.SRem(tagKey, id)
+		}
+		
+		existingTodo.Tags = *updates.Tags
+		
+		// Add to new tag sets
+		for _, tag := range existingTodo.Tags {
+			tagKey := TodosTagPrefix + tag
+			r.client.SAdd(tagKey, id)
+		}
 	}
 
 	// Update timestamp
@@ -272,6 +320,12 @@ func (r *TodoRepository) Delete(id string) error {
 	// Remove from priority set
 	priorityKey := TodosPriorityPrefix + string(todo.Priority)
 	r.client.SRem(priorityKey, id)
+
+	// Remove from tag sets
+	for _, tag := range todo.Tags {
+		tagKey := TodosTagPrefix + tag
+		r.client.SRem(tagKey, id)
+	}
 
 	return nil
 }

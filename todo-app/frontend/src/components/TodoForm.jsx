@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Save, X, Calendar, AlertCircle } from 'lucide-react';
+import { Save, X, Calendar, AlertCircle, Tag, Plus } from 'lucide-react';
 import { useLoading } from '../store/todoStore';
 
 const TodoForm = ({ todo, onSubmit, onCancel }) => {
@@ -11,7 +11,10 @@ const TodoForm = ({ todo, onSubmit, onCancel }) => {
     description: '',
     priority: 'medium',
     dueDate: '',
+    tags: [],
   });
+  
+  const [tagInput, setTagInput] = useState('');
   
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -24,6 +27,7 @@ const TodoForm = ({ todo, onSubmit, onCancel }) => {
         description: todo.description || '',
         priority: todo.priority || 'medium',
         dueDate: todo.dueDate ? todo.dueDate.split('T')[0] : '',
+        tags: todo.tags || [],
       });
     } else {
       setFormData({
@@ -31,8 +35,10 @@ const TodoForm = ({ todo, onSubmit, onCancel }) => {
         description: '',
         priority: 'medium',
         dueDate: '',
+        tags: [],
       });
     }
+    setTagInput('');
     setErrors({});
   }, [todo]);
 
@@ -50,6 +56,72 @@ const TodoForm = ({ todo, onSubmit, onCancel }) => {
         ...prev,
         [name]: ''
       }));
+    }
+  };
+
+  // Handle tag input
+  const handleTagInputChange = (e) => {
+    setTagInput(e.target.value);
+  };
+
+  // Add tag
+  const handleAddTag = (e) => {
+    e.preventDefault();
+    const trimmedTag = tagInput.trim();
+    
+    if (!trimmedTag) return;
+    
+    // Validate tag
+    if (trimmedTag.length > 50) {
+      setErrors(prev => ({
+        ...prev,
+        tags: 'Tag cannot exceed 50 characters'
+      }));
+      return;
+    }
+    
+    if (formData.tags.length >= 20) {
+      setErrors(prev => ({
+        ...prev,
+        tags: 'Cannot have more than 20 tags'
+      }));
+      return;
+    }
+    
+    if (formData.tags.includes(trimmedTag)) {
+      setErrors(prev => ({
+        ...prev,
+        tags: 'Tag already exists'
+      }));
+      return;
+    }
+    
+    setFormData(prev => ({
+      ...prev,
+      tags: [...prev.tags, trimmedTag]
+    }));
+    
+    setTagInput('');
+    setErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors.tags;
+      return newErrors;
+    });
+  };
+
+  // Remove tag
+  const handleRemoveTag = (tagToRemove) => {
+    setFormData(prev => ({
+      ...prev,
+      tags: prev.tags.filter(tag => tag !== tagToRemove)
+    }));
+  };
+
+  // Handle tag input key press
+  const handleTagKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddTag(e);
     }
   };
 
@@ -100,6 +172,10 @@ const TodoForm = ({ todo, onSubmit, onCancel }) => {
       
       if (formData.dueDate) {
         submitData.dueDate = new Date(formData.dueDate).toISOString();
+      }
+      
+      if (formData.tags.length > 0) {
+        submitData.tags = formData.tags;
       }
       
       await onSubmit(submitData);
@@ -172,6 +248,59 @@ const TodoForm = ({ todo, onSubmit, onCancel }) => {
         )}
         <p className="mt-1 text-xs text-gray-500">
           {formData.description.length}/1000 characters
+        </p>
+      </div>
+
+      {/* Tags Field */}
+      <div>
+        <label htmlFor="tags" className="block text-sm font-medium text-gray-700 mb-2">
+          Tags
+        </label>
+        <div className="flex flex-wrap gap-2 mb-2">
+          {formData.tags.map((tag, index) => (
+            <span
+              key={index}
+              className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium"
+            >
+              <Tag size={12} />
+              {tag}
+              <button
+                type="button"
+                onClick={() => handleRemoveTag(tag)}
+                className="ml-1 hover:text-blue-600 focus:outline-none"
+              >
+                <X size={12} />
+              </button>
+            </span>
+          ))}
+        </div>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={tagInput}
+            onChange={handleTagInputChange}
+            onKeyPress={handleTagKeyPress}
+            className={`input-field flex-1 ${errors.tags ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : ''}`}
+            placeholder="输入标签并按回车添加..."
+            maxLength={50}
+          />
+          <button
+            type="button"
+            onClick={handleAddTag}
+            className="btn-secondary flex items-center justify-center gap-2 px-4"
+          >
+            <Plus size={16} />
+            添加
+          </button>
+        </div>
+        {errors.tags && (
+          <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
+            <AlertCircle size={16} />
+            {errors.tags}
+          </p>
+        )}
+        <p className="mt-1 text-xs text-gray-500">
+          {formData.tags.length}/20 标签
         </p>
       </div>
 
