@@ -21,6 +21,7 @@ type Todo struct {
 	Description string     `json:"description"`
 	Completed   bool       `json:"completed"`
 	Priority    Priority   `json:"priority"`
+	Tags        []string   `json:"tags,omitempty"`
 	DueDate     *time.Time `json:"dueDate,omitempty"`
 	CreatedAt   time.Time  `json:"createdAt"`
 	UpdatedAt   time.Time  `json:"updatedAt"`
@@ -51,6 +52,7 @@ type CreateTodoRequest struct {
 	Title       string     `json:"title" binding:"required"`
 	Description string     `json:"description"`
 	Priority    Priority   `json:"priority"`
+	Tags        []string   `json:"tags,omitempty"`
 	DueDate     *time.Time `json:"dueDate,omitempty"`
 }
 
@@ -60,6 +62,7 @@ type UpdateTodoRequest struct {
 	Description *string    `json:"description,omitempty"`
 	Completed   *bool      `json:"completed,omitempty"`
 	Priority    *Priority  `json:"priority,omitempty"`
+	Tags        *[]string  `json:"tags,omitempty"`
 	DueDate     *time.Time `json:"dueDate,omitempty"`
 }
 
@@ -67,6 +70,7 @@ type UpdateTodoRequest struct {
 type TodoFilter struct {
 	Completed *bool     `form:"completed"`
 	Priority  *Priority `form:"priority"`
+	Tag       *string   `form:"tag"`    // Filter by a specific tag
 	SortBy    string    `form:"sortBy"` // "createdAt", "priority", "dueDate", "title"
 	Order     string    `form:"order"`  // "asc", "desc"
 }

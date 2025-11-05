@@ -1,10 +1,22 @@
-import React from 'react';
-import { Filter as FilterIcon, RotateCcw, ArrowUpDown } from 'lucide-react';
-import { useFilter, useTodoActions } from '../store/todoStore';
+import React, { useMemo } from 'react';
+import { Filter as FilterIcon, RotateCcw, ArrowUpDown, Tag } from 'lucide-react';
+import { useFilter, useTodos, useTodoActions } from '../store/todoStore';
 
 const Filter = () => {
   const filter = useFilter();
+  const todos = useTodos();
   const { setFilter, clearFilter } = useTodoActions();
+
+  // Extract all unique tags from todos
+  const allTags = useMemo(() => {
+    const tagSet = new Set();
+    todos.forEach(todo => {
+      if (todo.tags && todo.tags.length > 0) {
+        todo.tags.forEach(tag => tagSet.add(tag));
+      }
+    });
+    return Array.from(tagSet).sort();
+  }, [todos]);
 
   const handleCompletionFilter = (completed) => {
     setFilter({ 
@@ -15,6 +27,12 @@ const Filter = () => {
   const handlePriorityFilter = (priority) => {
     setFilter({ 
       priority: filter.priority === priority ? undefined : priority 
+    });
+  };
+
+  const handleTagFilter = (tag) => {
+    setFilter({ 
+      tag: filter.tag === tag ? undefined : tag 
     });
   };
 
@@ -32,7 +50,7 @@ const Filter = () => {
     }
   };
 
-  const isFilterActive = filter.completed !== undefined || filter.priority !== undefined;
+  const isFilterActive = filter.completed !== undefined || filter.priority !== undefined || filter.tag !== undefined;
 
   return (
     <div className="card">
@@ -89,6 +107,29 @@ const Filter = () => {
             ))}
           </div>
         </div>
+
+        {/* Tag Filter */}
+        {allTags.length > 0 && (
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600">Tag:</span>
+            <div className="flex flex-wrap gap-1 max-w-md">
+              {allTags.map((tag) => (
+                <button
+                  key={tag}
+                  onClick={() => handleTagFilter(tag)}
+                  className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium border transition-colors ${
+                    filter.tag === tag
+                      ? 'bg-blue-500 text-white border-blue-500'
+                      : 'bg-gray-100 text-gray-700 border-gray-200 hover:bg-gray-200'
+                  }`}
+                >
+                  <Tag size={12} />
+                  {tag}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Sort Options */}
         <div className="flex items-center gap-2">
@@ -154,6 +195,12 @@ const Filter = () => {
                 getPriorityColor(filter.priority)
               }`}>
                 {filter.priority} Priority
+              </span>
+            )}
+            {filter.tag && (
+              <span className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                <Tag size={12} />
+                {filter.tag}
               </span>
             )}
           </div>
